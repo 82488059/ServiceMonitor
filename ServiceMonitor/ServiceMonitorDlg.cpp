@@ -408,22 +408,13 @@ void CServiceMonitorDlg::OnLbnSelchangeListServices()
     }
     m_displayName = displayName;
     m_serviceName = esspv[0].lpServiceName;
-    
-    m_szPath = _T("");
-    ResetButtonStatus(esspv[0].ServiceStatusProcess.dwCurrentState);
     UpdateData(FALSE);
+    ResetButtonStatus(esspv[0].ServiceStatusProcess.dwCurrentState);
 }
 void CServiceMonitorDlg::ResetButtonStatus(DWORD curState)
 {
     UpdateData(TRUE);
-    if (m_szPath.IsEmpty())
-    {
-        m_btInstall.EnableWindow(FALSE);
-    }
-    else
-    {
-        m_btInstall.EnableWindow(TRUE);
-    }
+
     switch (curState)
     {
     case 0:
@@ -431,6 +422,14 @@ void CServiceMonitorDlg::ResetButtonStatus(DWORD curState)
         m_btStart.EnableWindow(FALSE);
         m_btRestart.EnableWindow(FALSE);
         m_btRemove.EnableWindow(FALSE);
+        if (m_szPath.IsEmpty())
+        {
+            m_btInstall.EnableWindow(FALSE);
+        }
+        else
+        {
+            m_btInstall.EnableWindow(TRUE);
+        }
         break;
 
     case SERVICE_STOP_PENDING:
@@ -439,6 +438,7 @@ void CServiceMonitorDlg::ResetButtonStatus(DWORD curState)
         m_btStart.EnableWindow(TRUE);
         m_btRestart.EnableWindow(FALSE);
         m_btRemove.EnableWindow(TRUE);
+        m_btInstall.EnableWindow(FALSE);
         break;
 
         
@@ -448,6 +448,7 @@ void CServiceMonitorDlg::ResetButtonStatus(DWORD curState)
         m_btStart.EnableWindow(FALSE);
         m_btRestart.EnableWindow(TRUE);
         m_btRemove.EnableWindow(TRUE);
+        m_btInstall.EnableWindow(FALSE);
         break;
 
     case SERVICE_CONTINUE_PENDING :
