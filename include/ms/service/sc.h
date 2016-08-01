@@ -199,8 +199,42 @@ namespace service{
             CloseServiceHandle(shDefineService);
             return false;
         }
+
+        bool GetConfig(const ms::tstring& displayName, LPQUERY_SERVICE_CONFIG& status)
+        {
+            if (NULL == scm_)
+            {
+                if (!Open())
+                {
+                    return false;
+                }
+            }
+            SC_HANDLE shDefineService = OpenService(scm_, displayName.c_str(), SERVICE_ALL_ACCESS);
+            if (NULL == shDefineService)
+            {
+                return false;
+            }
+            if (pqsc_)
+            {
+                free(pqsc_);
+                pqsc_ = NULL;
+            }
+            DWORD needsize = 0;
+            bool rval = false;
+            if (!QueryServiceConfig(shDefineService, status, 0, &needsize))
+            {
+                pqsc_ = (LPQUERY_SERVICE_CONFIG)malloc(needsize);
+                if (QueryServiceConfig(shDefineService, pqsc_, needsize, &needsize))
+                {
+                    status = pqsc_;
+                    rval = true;
+                }
+            }
+            CloseServiceHandle(shDefineService);
+            return rval;
+        }
     public:
-        sc() : scm_{ NULL }, pessp_{ NULL }, essp_size_{ 0 }
+        sc() : scm_{ NULL }, pessp_{ NULL }, essp_size_{ 0 }, pqsc_{NULL}
         {}
         ~sc()
         {
@@ -208,6 +242,11 @@ namespace service{
             {
                 free(pessp_);
                 pessp_ = NULL;
+            }
+            if (pqsc_)
+            {
+                free(pqsc_);
+                pqsc_ = NULL;
             }
             if (NULL != scm_)
             {
@@ -220,6 +259,7 @@ namespace service{
         SC_HANDLE scm_{ NULL };
         DWORD essp_size_{0};
         LPENUM_SERVICE_STATUS_PROCESS pessp_{ NULL };
+        LPQUERY_SERVICE_CONFIG pqsc_{ NULL };
 //         std::vector<ENUM_SERVICE_STATUS_PROCESS> essp_;
 
     };
