@@ -397,8 +397,18 @@ void CServiceMonitorDlg::OnLbnSelchangeListServices()
     {
         return;
     }
+    LPQUERY_SERVICE_CONFIG conf = NULL;
+    if (m_sc.GetConfig(ms::tstring(m_displayName), conf))
+    {
+        m_szPath = conf->lpBinaryPathName;
+    }
+    else
+    {
+        m_szPath = _T("");
+    }
     m_displayName = displayName;
     m_serviceName = esspv[0].lpServiceName;
+    
     m_szPath = _T("");
     ResetButtonStatus(esspv[0].ServiceStatusProcess.dwCurrentState);
     UpdateData(FALSE);
