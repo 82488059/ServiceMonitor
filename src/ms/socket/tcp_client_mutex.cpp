@@ -61,14 +61,43 @@ namespace ms{
             if (!connected_)
             {
                 _cond_thread.notify_one();
+                return -1;
             }
             std::lock_guard<std::mutex> guard(socket_mutex_);
-            int ret = ::send(socket_, buf, size, flags);
-            if (ret < 0)
+            if (!connected_)
+            {
+                _cond_thread.notify_one();
+                return -1;
+            }
+            long send_t = 0;
+            do
+            {
+                long ret = ::send(socket_, buf+send_t, size-send_t, flags);
+                DWORD dwErr = WSAGetLastError();
+                if (ret > 0)
+                {
+                    send_t += ret;
+                }
+                else if (ret == 0)
+                {
+                    continue;
+                }
+                else if (dwErr == WSAEWOULDBLOCK)
+                {
+                    break;
+                }
+                else if (-1 == ret)
+                {
+                    break;
+                }
+
+            } while (send_t < size);
+//             int ret = ::send(socket_, buf, size, flags);
+            if (send_t < size)
             {
                 connected_ = false;
             }
-            return ret;
+            return send_t;
         }
         bool tcp_client_mutex::StartAutoConnect()
         {

@@ -22,7 +22,6 @@ const std::string& GetHDSerial()
         serial = buf;
         serial.erase(0, serial.find_first_not_of(" "));
     }
-
     if (serial.empty())
     {
         dev::ElevationPrivilege();
@@ -30,6 +29,7 @@ const std::string& GetHDSerial()
         serial = get.GetHDSerial();
         serial.erase(0, serial.find_first_not_of(" "));
     }
+
 
     return serial;
 }

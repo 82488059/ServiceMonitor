@@ -239,12 +239,12 @@ namespace dev{
 #endif // _DEBUG
                 char* ps = _com_util::ConvertBSTRToString(vtProp.bstrVal);
                 strcpy_s(pBuf, bufSize, ps);
-                HexStrToStr(pBuf, pBuf, bufSize);
+                // HexStrToStr(pBuf, pBuf, bufSize);
                 delete[] ps;
                 rVal = TRUE;
 
                 VariantClear(&vtProp);
-                break;
+                //break;
             }
             VariantClear(&vtProp);
         }
