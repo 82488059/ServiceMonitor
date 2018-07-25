@@ -171,7 +171,7 @@ BOOL CServiceMonitorDlg::OnInitDialog()
     m_btRemove.EnableWindow(FALSE);
     m_btInstall.EnableWindow(FALSE);
 
-    m_logListCtrl;
+    m_logListCtrl.AddString(_T("查找服务功能支持正则表达式"));
     
     //m_szPath = ms::path::GetExecutePath().c_str() + m_serviceName + _T(".exe");
     UpdateData(FALSE);
