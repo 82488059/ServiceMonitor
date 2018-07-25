@@ -56,6 +56,7 @@ CServiceMonitorDlg::CServiceMonitorDlg(CWnd* pParent /*=NULL*/)
     , m_szPath(_T(""))
     , m_serviceName(_T(""))
     , m_displayName(_T(""))
+    , m_findName(_T(""))
 {
     memset(&m_notifyicon, 0, sizeof(m_notifyicon)); // Initialize NOTIFYICONDATA struct
     m_notifyicon.cbSize = sizeof(m_notifyicon);
@@ -77,6 +78,7 @@ void CServiceMonitorDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_EDIT_SERVICE_NAME, m_serviceName);
     DDX_Text(pDX, IDC_EDIT_SERVICE_DISPLAYNAME, m_displayName);
     DDX_Control(pDX, IDC_BT_INSTALL, m_btInstall);
+    DDX_Text(pDX, IDC_EDIT_SELECT, m_findName);
 }
 
 BEGIN_MESSAGE_MAP(CServiceMonitorDlg, CDialogEx)
@@ -95,6 +97,7 @@ BEGIN_MESSAGE_MAP(CServiceMonitorDlg, CDialogEx)
     ON_BN_CLICKED(IDC_BT_RESTART, &CServiceMonitorDlg::OnBnClickedBtRestart)
     ON_BN_CLICKED(IDC_BT_REFRESH, &CServiceMonitorDlg::OnBnClickedBtRefresh)
     ON_BN_CLICKED(IDC_BT_SELECT, &CServiceMonitorDlg::OnBnClickedBtSelect)
+    ON_BN_CLICKED(IDC_BT_FIND, &CServiceMonitorDlg::OnBnClickedBtFind)
 END_MESSAGE_MAP()
 
 
@@ -132,8 +135,8 @@ BOOL CServiceMonitorDlg::OnInitDialog()
     
     // 管理的服务名称
     //CString serviceName = _T("Apache2.4"); 
-    CString serviceName = _T("AudioService");
-    m_appHeadName = _T("ServiceMonitor-");
+    CString serviceName = _T("");
+    m_appHeadName = _T("服务注册工具-");
     m_displayName = serviceName;
     m_serviceName = serviceName;
     // 程序名称
@@ -593,4 +596,29 @@ void CServiceMonitorDlg::RefreshWindowsName()
     SetWindowText(appName);
     _tcsncpy_s(m_notifyicon.szTip, appName, appName.GetLength());
     Shell_NotifyIcon(NIM_MODIFY, &m_notifyicon);
+}
+
+
+void CServiceMonitorDlg::OnBnClickedBtFind()
+{
+    // TODO:  在此添加控件通知处理程序代码
+    UpdateData(TRUE);
+
+    m_servicesListCtrl.ResetContent();
+    if (m_sc.Open())
+    {
+        if (m_sc.EnumServices())
+        {
+            m_esspv.clear();
+            if (m_sc.GetInfoByServiceName(ms::tstring(m_findName), m_esspv))
+            {
+                for (ENUM_SERVICE_STATUS_PROCESS& var : m_esspv)
+                {
+                    m_servicesListCtrl.AddString(var.lpDisplayName);
+                }
+            }
+        }
+    }
+    ResetButtonStatus(0);
+
 }

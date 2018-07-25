@@ -3,6 +3,8 @@
 #include <winsvc.h>
 #include <vector>
 #include <ms/tstring.h>
+#include<regex>
+
 
 namespace ms{
 
@@ -73,12 +75,43 @@ namespace service{
             bool rval = false;
             for (DWORD i = 0; i < essp_size_; i++)
             {
-                if (0 == StrCmp(servicename.c_str(), pessp_[i].lpServiceName))
+                if (servicename.empty())
                 {
                     ENUM_SERVICE_STATUS_PROCESS essp;
                     memcpy(&essp, &pessp_[i], sizeof(essp));
                     esspv.push_back(essp);
                     rval = true;
+                }
+                else if (0 == StrCmp(servicename.c_str(), pessp_[i].lpServiceName))
+                {
+                    ENUM_SERVICE_STATUS_PROCESS essp;
+                    memcpy(&essp, &pessp_[i], sizeof(essp));
+                    esspv.push_back(essp);
+                    rval = true;
+                }
+                else
+                {
+                    try
+                    {
+#if UNICODE
+
+                        std::wregex reg1(servicename.c_str());//servicename.c_str()
+#else
+                        std::regex reg1(servicename.c_str());
+#endif
+                        bool found = std::regex_match(pessp_[i].lpServiceName, reg1);
+                        if (found)
+                        {
+                            ENUM_SERVICE_STATUS_PROCESS essp;
+                            memcpy(&essp, &pessp_[i], sizeof(essp));
+                            esspv.push_back(essp);
+                            rval = true;
+                        }
+                    }
+                    catch (...)
+                    {
+                        return false;
+                    }
                 }
             }
             return rval;

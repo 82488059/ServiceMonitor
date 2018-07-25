@@ -67,4 +67,6 @@ public:
     CString m_displayName;
     CString m_appHeadName;
     CButton m_btInstall;
+    afx_msg void OnBnClickedBtFind();
+    CString m_findName;
 };
